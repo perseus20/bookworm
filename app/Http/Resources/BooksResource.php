@@ -18,10 +18,12 @@ class BooksResource extends JsonResource
             'id' => (string)$this->id,
             'type' => 'Books',
             'attributes' => [
+                'book_category' => $this->category,
+                'book_author' => $this->author,
                 'book_title' => $this->book_title,
-                'book_cover' => $this->book_cover_photo,
                 'book_summary' => $this->book_summary,
                 'book_price' => $this->book_price,
+                'book_cover' => $this->book_cover_photo,
             ]
         ];
     }

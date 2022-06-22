@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Author;
 use App\Http\Resources\AuthorsResource;
 use Illuminate\Http\Request;
+use App\Repository\AuthorRepository;
+
 
 class AuthorsController extends Controller
 {
@@ -13,9 +15,18 @@ class AuthorsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+    private AuthorRepository $authorRepository;
+
+    public function __construct(AuthorRepository $authorRepository)
+    {
+        $this->authorRepository = $authorRepository;
+    }
+
     public function index()
     {
-        return AuthorsResource::collection(Author::all());
+        $authors = $this->authorRepository->getAll();
+        return AuthorsResource::collection($authors);
     }
 
     /**
@@ -37,6 +48,7 @@ class AuthorsController extends Controller
      */
     public function show(Author $author)
     {
+        $author = $this->authorRepository->getById($author->id);
         return new AuthorsResource($author);
     }
 
