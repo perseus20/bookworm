@@ -24,7 +24,8 @@ class BooksController extends Controller
 
     public function index()
     {
-        $books = $this->bookRepository->getOnSale();
+        $books = $this->bookRepository->getPopular();
+
         return BooksResource::collection($books);
     }
 

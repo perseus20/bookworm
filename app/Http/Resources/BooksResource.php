@@ -24,6 +24,7 @@ class BooksResource extends JsonResource
                 'book_summary' => $this->book_summary,
                 'book_price' => $this->book_price,
                 'book_cover' => $this->book_cover_photo,
+                'book_final_price' => (string) $this->book_final_price,
             ]
         ];
     }

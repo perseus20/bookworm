@@ -231,4 +231,18 @@ return [
 
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Constant variable Name
+    |--------------------------------------------------------------------------
+    |
+    | This value is the variable of your application. This value is used when the
+    | framework needs to use the variable in a notification or
+    | any other location as required by the application or its packages.
+    |
+    */
+    'get_on_sale' => 10,
+    'get_recommmanded' => 8,
+    'get_popular' => 8,
+
 ];
