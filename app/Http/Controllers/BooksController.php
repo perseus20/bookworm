@@ -22,56 +22,69 @@ class BooksController extends Controller
         $this->bookRepository = $bookRepository;
     }
 
-    public function index()
+    public function getOnSaleApi()
     {
-        $books = $this->bookRepository->getPopular();
-
+        $books = $this->bookRepository->getOnSale();
         return BooksResource::collection($books);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+    public function getSortOnSaleApi()
     {
-        //
+        $books = $this->bookRepository->getSortByOnSale();
+        return BooksResource::collection($books);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Book  $book
-     * @return \Illuminate\Http\Response
-     */
+    public function getFinalPriceApi(Book $book)
+    {
+        $book = new BooksResource($book);
+        return ($book)->book_final_price;
+    }
+
+    public function getPopularApi()
+    {
+        $books = $this->bookRepository->getPopular();
+        return BooksResource::collection($books);
+    }
+
+    public function getSortByPopularApi()
+    {
+        $books = $this->bookRepository->getSortByPopular();
+        return BooksResource::collection($books);
+    }
+
+    public function getRecommendedApi()
+    {
+        $books = $this->bookRepository->getRecommendedBooks();
+        return BooksResource::collection($books);
+    }
+
+    public function getSortByRecommendedApi()
+    {
+        $books = $this->bookRepository->getSortByRecommendedBooks();
+        return BooksResource::collection($books);
+    }
+
+    public function getSortByFinalPriceAscApi()
+    {
+        $books = $this->bookRepository->getSortByFinalPriceAsc();
+        return BooksResource::collection($books);
+    }
+
+    public function getSortByFinalPriceDescApi(Request $request)
+    {
+        $books = $this->bookRepository->getSortByFinalPriceDesc($request->get('cate'));
+        return BooksResource::collection($books);
+    }
+
     public function show(Book $book)
     {
         $book = $this->bookRepository->getById($book->id);
         return new BooksResource($book);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Book  $book
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Book $book)
+    public function testApi(Request $request)
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Book  $book
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Book $book)
-    {
-        //
+        $categories = $this->bookRepository->test($request->get('cate'));
+        return $categories->toArray();
     }
 }

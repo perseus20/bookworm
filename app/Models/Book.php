@@ -27,6 +27,11 @@ class Book extends Model
         return $this->hasMany(Review::class);
     }
 
+    public function discount()
+    {
+        return $this->hasMany(Discount::class);
+    }
+
     protected $book_final_price = ['book_final_price'];
 
     public function getBookFinalPriceAttribute()
@@ -38,8 +43,7 @@ class Book extends Model
                 $query->where('discount_end_date', '>=', date('Y-m-d'))
                     ->orWhereNull('discount_end_date');
             })->first();
-        $discount_price = $discount_price->discount_price ?? 0;
-        $book_final_price = $book->book_price - $discount_price;
+        $book_final_price = $discount_price->discount_price ?? $book->book_price;
         return $book_final_price;
     }
 }

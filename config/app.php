@@ -242,7 +242,7 @@ return [
     |
     */
     'get_on_sale' => 10,
-    'get_recommmanded' => 8,
+    'get_recommmended' => 8,
     'get_popular' => 8,
 
 ];
