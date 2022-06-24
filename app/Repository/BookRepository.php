@@ -6,6 +6,7 @@ use App\Repository\RepositoryAbstract;
 use App\Models\Book;
 use App\Models\Category;
 use App\Models\Discount;
+use App\Models\Review;
 use Illuminate\Support\Facades\DB;
 
 class BookRepository extends RepositoryAbstract
@@ -34,7 +35,12 @@ class BookRepository extends RepositoryAbstract
     public function getOnSale()
     {
         $books = Book::join('discount', 'discount.book_id', '=', 'book.id')
-            ->select(DB::raw('book.id,book.book_price,book.author_id,book.book_title,book.book_cover_photo, (book.book_price - discount.discount_price) as sub_price'))
+            ->select(DB::raw('book.id,
+            book.book_price,
+            book.author_id,
+            book.book_title,
+            book.book_cover_photo,
+            (book.book_price - discount.discount_price) as sub_price'))
             ->where('discount_start_date', '<=', date('Y-m-d'))
             ->where(function ($query) {
                 $query->where('discount_end_date', '>=', date('Y-m-d'))
@@ -48,19 +54,29 @@ class BookRepository extends RepositoryAbstract
 
     public function getSortByOnSale()
     {
-        $books = Book::leftJoin('discount', 'discount.book_id', '=', 'book.id')
-            ->select(DB::raw('book.id,book.book_price,book.author_id,book.book_title,book.book_cover_photo,case 
-	when discount.discount_start_date <= now() and (discount.discount_end_date >= now()  or discount.discount_end_date is null)
+        $books =
+            Book::leftJoin('discount', 'discount.book_id', '=', 'book.id')
+            ->select(DB::raw('book.id,
+            book.book_price,
+            book.author_id,
+            book.book_title,
+            book.book_cover_photo,
+            case 
+	when discount.discount_start_date <= now() and
+    (discount.discount_end_date >= now()  or
+    discount.discount_end_date is null)
 	then book.book_price - discount.discount_price
 	else 0
-end as sub_price,case 
-	when discount.discount_start_date <= now() and (discount.discount_end_date >= now()  or discount.discount_end_date is null)
+    end as sub_price,
+    case 
+	when discount.discount_start_date <= now() and
+    (discount.discount_end_date >= now()  or
+    discount.discount_end_date is null)
 	then discount.discount_price
 	else book.book_price
-end as final_price'))
+    end as final_price'))
             ->orderBy('sub_price', 'desc')
             ->orderBy('final_price', 'asc')
-            ->take(config('app.get_on_sale'))
             ->get();
         return $books;
     }
@@ -179,10 +195,30 @@ end as final_price')
         return $books;
     }
 
-    public function test($id)
+    public function test() //return books with final price 
     {
-        $categories = Category::with('books')->whereId($id);
-        $categories = $categories->select(['id'])->get();
-        return $categories;
+        $books = Book::query()->addSelect([
+            'final_price' => Discount::query()->whereColumn('book.id', 'discount.book_id')
+                ->where('discount.discount_start_date', '<=', date('Y-m-d'))
+                ->where(function ($query) {
+                    $query->where('discount.discount_end_date', '>=', date('Y-m-d'))
+                        ->orWhereNull('discount.discount_end_date');
+                })->select('discount_price')->limit(1)
+        ]);
+        return $books;
+    }
+
+    public function test2()
+    {
+        $book = BookRepository::test()->with('discounts')->get();
+        // $book = Review::query()->joinSub($book, 'book', function ($join) {
+        //     $join->on('review.book_id', '=', 'book.id');
+        // })
+        //     ->select(DB::raw('book.id,book.author_id,book.category_id, avg(review.rating_start) as stars'))
+        //     ->groupBy('book.id', 'book.author_id', 'book.final_price', 'book.category_id')
+        //     ->orderByDesc('stars')
+        //     ->orderBy('book.final_price')
+        //     ->get();
+        return $book;
     }
 }

@@ -27,23 +27,28 @@ class Book extends Model
         return $this->hasMany(Review::class);
     }
 
-    public function discount()
+    public function discounts()
     {
-        return $this->hasMany(Discount::class);
+        return $this->hasOne(Discount::class);
     }
 
     protected $book_final_price = ['book_final_price'];
 
+    // public function getBookFinalPriceAttribute()
+    // {
+    //     $book = Book::where('id', $this->id)->first();
+    //     $discount_price = Discount::where('discount.book_id', '=', $book->id)
+    //         ->where('discount_start_date', '<=', date('Y-m-d'))
+    //         ->where(function ($query) {
+    //             $query->where('discount_end_date', '>=', date('Y-m-d'))
+    //                 ->orWhereNull('discount_end_date');
+    //         })->first();
+    //     $book_final_price = $discount_price->discount_price ?? $book->book_price;
+    //     return $book_final_price;
+    // }
     public function getBookFinalPriceAttribute()
     {
-        $book = Book::where('id', $this->id)->first();
-        $discount_price = Discount::where('discount.book_id', '=', $book->id)
-            ->where('discount_start_date', '<=', date('Y-m-d'))
-            ->where(function ($query) {
-                $query->where('discount_end_date', '>=', date('Y-m-d'))
-                    ->orWhereNull('discount_end_date');
-            })->first();
-        $book_final_price = $discount_price->discount_price ?? $book->book_price;
+        $book_final_price = $this->discounts->discount_price ?? $this->book_price;
         return $book_final_price;
     }
 }
