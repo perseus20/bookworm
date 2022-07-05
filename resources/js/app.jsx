@@ -1,8 +1,9 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import Welcome from './welcome';
+import React from "react";
+import ReactDOM from "react-dom";
+import GetOnSale from "./getonsale";
+import Header from "./header";
+import "bootstrap/dist/css/bootstrap.min.css";
+import Welcome from "./welcome";
+import HomePage from "./homepage";
 
-ReactDOM.render(
-  <Welcome/>,
-  document.getElementById('root')
-);
+ReactDOM.render(<HomePage />, document.getElementById("root"));

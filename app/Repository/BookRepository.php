@@ -39,7 +39,7 @@ class BookRepository extends RepositoryAbstract
             book.book_price,
             book.author_id,
             book.book_title,
-            book.book_cover_photo,
+            book.book_cover_photo,discount.discount_price as final_price,
             (book.book_price - discount.discount_price) as sub_price'))
             ->where('discount_start_date', '<=', date('Y-m-d'))
             ->where(function ($query) {
@@ -83,22 +83,16 @@ class BookRepository extends RepositoryAbstract
 
     public function getRecommendedBooks()
     {
-        $books = Book::leftJoin('discount', 'book.id', '=', 'discount.book_id')
-            ->select(
-                DB::raw('book.id,book.book_price,book.author_id,book.book_title,book.book_cover_photo, avg(review.rating_start) as stars,discount.discount_price,
-case 
-	when discount.discount_start_date <= now() and (discount.discount_end_date >= now()  or discount.discount_end_date is null)
-	then discount.discount_price
-	else book.book_price
-end as final_price')
-            )
+        $book = Book::query()
             ->join('review', 'book.id', '=', 'review.book_id')
-            ->groupBy('book.id', 'discount.discount_price', 'discount_start_date', 'discount_end_date')
+            ->selectRaw('book.*,avg(rating_start) as stars')
+            ->groupBy('book.id', 'discount.discount_start_date', 'discount.discount_end_date', 'discount.discount_price')
             ->orderBy('stars', 'desc')
-            ->orderBy('final_price', 'asc')
+            ->getFinalPrice()
+            ->orderBy('final_price')
             ->take(config('app.get_recommmended'))
             ->get();
-        return $books;
+        return $book;
     }
 
     public function getSortByRecommendedBooks()
@@ -122,22 +116,16 @@ end as final_price')
 
     public function getPopular()
     {
-        $books = Book::leftJoin('discount', 'book.id', '=', 'discount.book_id')
-            ->select(
-                DB::raw('book.id,book.book_price,book.author_id,book.book_title,book.book_cover_photo, count(review.id) as popular,discount.discount_price,
-case 
-	when discount.discount_start_date <= now() and (discount.discount_end_date >= now()  or discount.discount_end_date is null)
-	then discount.discount_price
-	else book.book_price
-end as final_price')
-            )
+        $book = Book::query()
             ->join('review', 'book.id', '=', 'review.book_id')
-            ->groupBy('book.id', 'discount.discount_price', 'discount_start_date', 'discount_end_date')
+            ->selectRaw('book.*,count(review.id) as popular')
+            ->groupBy('book.id', 'discount.discount_start_date', 'discount.discount_end_date', 'discount.discount_price')
             ->orderBy('popular', 'desc')
-            ->orderBy('final_price', 'asc')
-            ->take(config('app.get_popular'))
+            ->getFinalPrice()
+            ->orderBy('final_price')
+            ->take(config('app.get_recommmended'))
             ->get();
-        return $books;
+        return $book;
     }
 
     public function getSortByPopular()
@@ -197,28 +185,20 @@ end as final_price')
 
     public function test() //return books with final price 
     {
-        $books = Book::query()->addSelect([
-            'final_price' => Discount::query()->whereColumn('book.id', 'discount.book_id')
-                ->where('discount.discount_start_date', '<=', date('Y-m-d'))
-                ->where(function ($query) {
-                    $query->where('discount.discount_end_date', '>=', date('Y-m-d'))
-                        ->orWhereNull('discount.discount_end_date');
-                })->select('discount_price')->limit(1)
-        ]);
+        $books = Book::getFinalPrice()->get();
         return $books;
     }
 
     public function test2()
     {
-        $book = BookRepository::test()->with('discounts')->get();
-        // $book = Review::query()->joinSub($book, 'book', function ($join) {
-        //     $join->on('review.book_id', '=', 'book.id');
-        // })
-        //     ->select(DB::raw('book.id,book.author_id,book.category_id, avg(review.rating_start) as stars'))
-        //     ->groupBy('book.id', 'book.author_id', 'book.final_price', 'book.category_id')
-        //     ->orderByDesc('stars')
-        //     ->orderBy('book.final_price')
-        //     ->get();
+        $book = Book::query()
+            ->join('review', 'book.id', '=', 'review.book_id')
+            ->selectRaw('book.*,count(review.id) as popular')
+            ->groupBy('book.id', 'discount.discount_start_date', 'discount.discount_end_date', 'discount.discount_price')
+            ->orderBy('popular', 'desc')
+            ->getFinalPrice()
+            ->orderBy('final_price')
+            ->get();
         return $book;
     }
 }

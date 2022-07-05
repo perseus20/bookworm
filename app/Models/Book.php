@@ -34,21 +34,20 @@ class Book extends Model
 
     protected $book_final_price = ['book_final_price'];
 
-    // public function getBookFinalPriceAttribute()
-    // {
-    //     $book = Book::where('id', $this->id)->first();
-    //     $discount_price = Discount::where('discount.book_id', '=', $book->id)
-    //         ->where('discount_start_date', '<=', date('Y-m-d'))
-    //         ->where(function ($query) {
-    //             $query->where('discount_end_date', '>=', date('Y-m-d'))
-    //                 ->orWhereNull('discount_end_date');
-    //         })->first();
-    //     $book_final_price = $discount_price->discount_price ?? $book->book_price;
-    //     return $book_final_price;
-    // }
     public function getBookFinalPriceAttribute()
     {
-        $book_final_price = $this->discounts->discount_price ?? $this->book_price;
+        $book_final_price = $this->final_price;
         return $book_final_price;
+    }
+
+    public function scopeGetFinalPrice($query)
+    {
+        return $query->leftJoin('discount', 'book.id', '=', 'discount.book_id')
+            ->selectRaw('case when discount.discount_start_date <= now() and 
+    (discount.discount_end_date >= now()  or 
+    discount.discount_end_date is null)
+	then discount.discount_price
+	else book.book_price
+end as final_price');
     }
 }

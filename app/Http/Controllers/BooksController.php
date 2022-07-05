@@ -26,6 +26,7 @@ class BooksController extends Controller
     {
         $books = $this->bookRepository->getOnSale();
         return BooksResource::collection($books);
+        // return $books;
     }
 
     public function getSortOnSaleApi()
@@ -85,15 +86,18 @@ class BooksController extends Controller
     public function testApi()
     {
         $books = $this->bookRepository->test();
-        return BooksResource::collection($books);
+        return $books;
+        // return BooksResource::collection($books);
+        // $books = BooksResource::collection($books);
+        // return view('index')->with('books', $books);
     }
     public function test2Api()
     {
         $books = $this->bookRepository->test2();
         // dd($books);
-        // return $books;
+        return $books;
         // return BooksResource::collection($books);
-        $books = BooksResource::collection($books);
-        return view('index')->with('books', $books);
+        // $books = BooksResource::collection($books);
+        // return view('index')->with('books', $books);
     }
 }
