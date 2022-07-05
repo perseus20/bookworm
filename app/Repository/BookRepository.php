@@ -4,9 +4,8 @@ namespace App\Repository;
 
 use App\Repository\RepositoryAbstract;
 use App\Models\Book;
-use App\Models\Category;
-use App\Models\Discount;
-use App\Models\Review;
+use Illuminate\Http\Request;
+
 use Illuminate\Support\Facades\DB;
 
 class BookRepository extends RepositoryAbstract
@@ -34,171 +33,124 @@ class BookRepository extends RepositoryAbstract
 
     public function getOnSale()
     {
-        $books = Book::join('discount', 'discount.book_id', '=', 'book.id')
-            ->select(DB::raw('book.id,
-            book.book_price,
-            book.author_id,
-            book.book_title,
-            book.book_cover_photo,discount.discount_price as final_price,
-            (book.book_price - discount.discount_price) as sub_price'))
-            ->where('discount_start_date', '<=', date('Y-m-d'))
-            ->where(function ($query) {
-                $query->where('discount_end_date', '>=', date('Y-m-d'))
-                    ->orWhereNull('discount_end_date');
-            })
-            ->orderBy('sub_price', 'desc')
+        $books = Book::onSale()
             ->take(config('app.get_on_sale'))
             ->get();
         return $books;
     }
 
-    public function getSortByOnSale()
+    public function getSortByOnSale(Request $request)
     {
-        $books =
-            Book::leftJoin('discount', 'discount.book_id', '=', 'book.id')
-            ->select(DB::raw('book.id,
-            book.book_price,
-            book.author_id,
-            book.book_title,
-            book.book_cover_photo,
-            case 
-	when discount.discount_start_date <= now() and
-    (discount.discount_end_date >= now()  or
-    discount.discount_end_date is null)
-	then book.book_price - discount.discount_price
-	else 0
-    end as sub_price,
-    case 
-	when discount.discount_start_date <= now() and
-    (discount.discount_end_date >= now()  or
-    discount.discount_end_date is null)
-	then discount.discount_price
-	else book.book_price
-    end as final_price'))
-            ->orderBy('sub_price', 'desc')
-            ->orderBy('final_price', 'asc')
-            ->get();
+        $books = Book::onSale();
+        if ($request->category) {
+            $books->where('category_id', $request->category);
+        }
+        if ($request->author) {
+            $books->where('author_id', $request->author);
+        }
+        if ($request->star) {
+            $books->stars()->havingRaw("avg(rating_start) >= $request->star");
+        }
+        if ($request->perPage) {
+            $perPage = $request->perPage;
+        } else {
+            $perPage = config('app.perPage');
+        }
+        $books = $books->orderBy('final_price', 'asc')->paginate($perPage);
+        $input = $request->input();
+        $books->appends($input);
+        return $books;
         return $books;
     }
 
     public function getRecommendedBooks()
     {
-        $book = Book::query()
-            ->join('review', 'book.id', '=', 'review.book_id')
-            ->selectRaw('book.*,avg(rating_start) as stars')
-            ->groupBy('book.id', 'discount.discount_start_date', 'discount.discount_end_date', 'discount.discount_price')
-            ->orderBy('stars', 'desc')
-            ->getFinalPrice()
-            ->orderBy('final_price')
-            ->take(config('app.get_recommmended'))
+        $books = Book::Recommended()
+            ->take(config('app.get_recommended'))
             ->get();
-        return $book;
+        return $books;
     }
 
     public function getSortByRecommendedBooks()
     {
-        $books = Book::leftJoin('discount', 'book.id', '=', 'discount.book_id')
-            ->select(
-                DB::raw('book.id,book.book_price,book.author_id,book.book_title,book.book_cover_photo, avg(review.rating_start) as stars,discount.discount_price,
-case 
-	when discount.discount_start_date <= now() and (discount.discount_end_date >= now()  or discount.discount_end_date is null)
-	then discount.discount_price
-	else book.book_price
-end as final_price')
-            )
-            ->join('review', 'book.id', '=', 'review.book_id')
-            ->groupBy('book.id', 'discount.discount_price', 'discount_start_date', 'discount_end_date')
-            ->orderBy('stars', 'desc')
-            ->orderBy('final_price', 'asc')
+        $books = Book::Recommended()
             ->get();
         return $books;
     }
 
     public function getPopular()
     {
-        $book = Book::query()
-            ->join('review', 'book.id', '=', 'review.book_id')
-            ->selectRaw('book.*,count(review.id) as popular')
-            ->groupBy('book.id', 'discount.discount_start_date', 'discount.discount_end_date', 'discount.discount_price')
-            ->orderBy('popular', 'desc')
-            ->getFinalPrice()
-            ->orderBy('final_price')
-            ->take(config('app.get_recommmended'))
-            ->get();
-        return $book;
-    }
-
-    public function getSortByPopular()
-    {
-        $books = Book::leftJoin('discount', 'book.id', '=', 'discount.book_id')
-            ->select(
-                DB::raw('book.id,book.book_price,book.author_id,book.book_title,book.book_cover_photo, count(review.id) as popular,discount.discount_price,
-case 
-	when discount.discount_start_date <= now() and (discount.discount_end_date >= now()  or discount.discount_end_date is null)
-	then discount.discount_price
-	else book.book_price
-end as final_price')
-            )
-            ->join('review', 'book.id', '=', 'review.book_id')
-            ->groupBy('book.id', 'discount.discount_price', 'discount_start_date', 'discount_end_date')
-            ->orderBy('popular', 'desc')
-            ->orderBy('final_price', 'asc')
+        $books = Book::Popular()
             ->take(config('app.get_popular'))
             ->get();
         return $books;
     }
 
-    public function getSortByFinalPriceAsc()
+    public function getSortByPopular(Request $request)
     {
-        $books =
-            Book::leftJoin('discount', 'book.id', '=', 'discount.book_id')
-            ->select(
-                DB::raw('book.id,book.book_price,book.author_id,book.book_title,book.book_cover_photo,discount.discount_price,
-case 
-	when discount.discount_start_date <= now() and (discount.discount_end_date >= now()  or discount.discount_end_date is null)
-	then discount.discount_price
-	else book.book_price
-end as final_price')
-            )
-            ->orderBy('final_price', 'asc')
-            ->get();
-        return $books;
-    }
-    public function getSortByFinalPriceDesc($id)
-    {
-        $books =
-            Book::leftJoin('discount', 'book.id', '=', 'discount.book_id')
-            ->select(
-                DB::raw('book.id,book.category_id,discount.discount_price,
-                case 
-                when discount.discount_start_date <= now() and (discount.discount_end_date >= now()  or discount.discount_end_date is null)
-                then discount.discount_price
-                else book.book_price
-                end as final_price')
-            )
-            ->join('category', 'book.category_id', '=', 'category.id')
-            ->where('category.id', '=', $id)
-            ->orderBy('final_price', 'desc')
-            ->get();
+        $books = Book::Popular();
+        if ($request->category) {
+            $books->where('category_id', $request->category);
+        }
+        if ($request->author) {
+            $books->where('author_id', $request->author);
+        }
+        if ($request->star) {
+            $books->stars()->havingRaw("avg(rating_start) >= $request->star");
+        }
+        if ($request->perPage) {
+            $perPage = $request->perPage;
+        } else {
+            $perPage = config('app.perPage');
+        }
+        $books = $books->orderBy('final_price', 'asc')->paginate($perPage);
+        $input = $request->input();
+        $books->appends($input);
         return $books;
     }
 
-    public function test() //return books with final price 
+    public function getSortByFinalPriceAsc(Request $request)
     {
-        $books = Book::getFinalPrice()->get();
+        $books = Book::getFinalPrice();
+        if ($request->category) {
+            $books->where('category_id', $request->category);
+        }
+        if ($request->author) {
+            $books->where('author_id', $request->author);
+        }
+        if ($request->star) {
+            $books->stars()->havingRaw("avg(rating_start) >= $request->star");
+        }
+        if ($request->perPage) {
+            $perPage = $request->perPage;
+        } else {
+            $perPage = config('app.perPage');
+        }
+        $books = $books->orderBy('final_price', 'asc')->paginate($perPage);
+        $input = $request->input();
+        $books->appends($input);
         return $books;
     }
-
-    public function test2()
+    public function getSortByFinalPriceDesc(Request $request)
     {
-        $book = Book::query()
-            ->join('review', 'book.id', '=', 'review.book_id')
-            ->selectRaw('book.*,count(review.id) as popular')
-            ->groupBy('book.id', 'discount.discount_start_date', 'discount.discount_end_date', 'discount.discount_price')
-            ->orderBy('popular', 'desc')
-            ->getFinalPrice()
-            ->orderBy('final_price')
-            ->get();
-        return $book;
+        $books = Book::getFinalPrice();
+        if ($request->category) {
+            $books->where('category_id', $request->category);
+        }
+        if ($request->author) {
+            $books->where('author_id', $request->author);
+        }
+        if ($request->star) {
+            $books->stars()->havingRaw("avg(rating_start) >= $request->star");
+        }
+        if ($request->perPage) {
+            $perPage = $request->perPage;
+        } else {
+            $perPage = config('app.perPage');
+        }
+        $books = $books->orderBy('final_price', 'desc')->paginate($perPage);
+        $input = $request->input();
+        $books->appends($input);
+        return $books;
     }
 }

@@ -32,6 +32,4 @@ Route::get('/books/get-sort-by-popular', [BooksController::class, 'getSortByPopu
 Route::get('/books/get-sort-by-final-price-asc', [BooksController::class, 'getSortByFinalPriceAscApi']);
 Route::get('/books/get-sort-by-final-price-desc', [BooksController::class, 'getSortByFinalPriceDescApi']);
 Route::get('/books/get-sort-by-popular', [BooksController::class, 'getSortByPopularApi']);
-Route::get('/books/test', [BooksController::class, 'testApi']);
-Route::get('/books/test2', [BooksController::class, 'test2Api']);
 Route::get('/books/get-final-price/{book}', [BooksController::class, 'getFinalPriceApi']);

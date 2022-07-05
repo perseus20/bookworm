@@ -244,5 +244,6 @@ return [
     'get_on_sale' => 10,
     'get_recommmended' => 8,
     'get_popular' => 8,
+    'perPage' => 5,
 
 ];

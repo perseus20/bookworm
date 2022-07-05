@@ -26,19 +26,12 @@ class BooksController extends Controller
     {
         $books = $this->bookRepository->getOnSale();
         return BooksResource::collection($books);
-        // return $books;
     }
 
-    public function getSortOnSaleApi()
+    public function getSortOnSaleApi(Request $request)
     {
-        $books = $this->bookRepository->getSortByOnSale();
+        $books = $this->bookRepository->getSortByOnSale($request);
         return BooksResource::collection($books);
-    }
-
-    public function getFinalPriceApi(Book $book)
-    {
-        $book = new BooksResource($book);
-        return ($book)->book_final_price;
     }
 
     public function getPopularApi()
@@ -47,9 +40,9 @@ class BooksController extends Controller
         return BooksResource::collection($books);
     }
 
-    public function getSortByPopularApi()
+    public function getSortByPopularApi(Request $request)
     {
-        $books = $this->bookRepository->getSortByPopular();
+        $books = $this->bookRepository->getSortByPopular($request);
         return BooksResource::collection($books);
     }
 
@@ -65,39 +58,21 @@ class BooksController extends Controller
         return BooksResource::collection($books);
     }
 
-    public function getSortByFinalPriceAscApi()
+    public function getSortByFinalPriceAscApi(Request $request)
     {
-        $books = $this->bookRepository->getSortByFinalPriceAsc();
+        $books = $this->bookRepository->getSortByFinalPriceAsc($request);
         return BooksResource::collection($books);
     }
 
     public function getSortByFinalPriceDescApi(Request $request)
     {
-        $books = $this->bookRepository->getSortByFinalPriceDesc($request->get('cate'));
-        return BooksResource::collection($books);
+        $books = $this->bookRepository->getSortByFinalPriceDesc($request);
+        return $books = BooksResource::collection($books);
     }
 
     public function show(Book $book)
     {
         $book = $this->bookRepository->getById($book->id);
         return new BooksResource($book);
-    }
-
-    public function testApi()
-    {
-        $books = $this->bookRepository->test();
-        return $books;
-        // return BooksResource::collection($books);
-        // $books = BooksResource::collection($books);
-        // return view('index')->with('books', $books);
-    }
-    public function test2Api()
-    {
-        $books = $this->bookRepository->test2();
-        // dd($books);
-        return $books;
-        // return BooksResource::collection($books);
-        // $books = BooksResource::collection($books);
-        // return view('index')->with('books', $books);
     }
 }
