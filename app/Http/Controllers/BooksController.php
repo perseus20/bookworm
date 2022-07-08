@@ -43,7 +43,8 @@ class BooksController extends Controller
     public function getSortByPopularApi(Request $request)
     {
         $books = $this->bookRepository->getSortByPopular($request);
-        return BooksResource::collection($books);
+        // return BooksResource::collection($books);
+        return $books;
     }
 
     public function getRecommendedApi()

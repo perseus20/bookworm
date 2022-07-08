@@ -2,7 +2,7 @@ body {
     font-family: "Nunito", sans-serif;
     padding: 0;
     margin: 0;
-    background-color: black;
+    /* background-color: black; */
 }
 
 main {
@@ -34,32 +34,23 @@ main {
     margin-left: 6px;
     margin-bottom: 1px;
 }
-#onsale {
-    color: rgb(33, 37, 41);
-}
-.center1 {
-    display: grid;
-    align-items: center;
-    justify-content: center;
-}
-.inclinee {
-    padding: 0;
-    margin: 0;
-}
-#getonsale {
-    width: 50%;
-    margin: 0 auto;
-}
-.dcard {
+.dswiper {
     width: 80%;
-    max-width: 750px;
-    padding: 10px;
+    min-width: 800px;
 }
-img {
-    width: 399px;
-    height: 499px;
+.bold {
+    font-weight: bold;
 }
-.dimg {
-    width: 100%;
-    height: 50%;
+.nav-link.active {
+    color: #fff !important;
+    background: black !important;
+}
+.small {
+    width: 50%;
+    min-width: 200px;
+    display: inline;
+}
+.sort {
+    display: inline;
+    width: 250px;
 }

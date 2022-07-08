@@ -1,9 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import GetOnSale from "./getonsale";
-import Header from "./header";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { BrowserRouter } from "react-router-dom";
 import Welcome from "./welcome";
-import HomePage from "./homepage";
+import BookWorm from "./components/bookworm";
 
-ReactDOM.render(<HomePage />, document.getElementById("root"));
+ReactDOM.render(
+    <BrowserRouter>
+        <BookWorm />
+    </BrowserRouter>,
+    document.getElementById("root")
+);

@@ -42,10 +42,10 @@ class BookRepository extends RepositoryAbstract
     public function getSortByOnSale(Request $request)
     {
         $books = Book::onSale();
-        if ($request->category) {
+        if ($request->category && $request->category != 0) {
             $books->where('category_id', $request->category);
         }
-        if ($request->author) {
+        if ($request->author && $request->author != 0) {
             $books->where('author_id', $request->author);
         }
         if ($request->star) {
@@ -66,7 +66,7 @@ class BookRepository extends RepositoryAbstract
     public function getRecommendedBooks()
     {
         $books = Book::Recommended()
-            ->take(config('app.get_recommended'))
+            ->take(config('app.get_recommmended'))
             ->get();
         return $books;
     }
@@ -89,14 +89,14 @@ class BookRepository extends RepositoryAbstract
     public function getSortByPopular(Request $request)
     {
         $books = Book::Popular();
-        if ($request->category) {
+        if ($request->category && $request->category != 0) {
             $books->where('category_id', $request->category);
         }
-        if ($request->author) {
+        if ($request->author && $request->author != 0) {
             $books->where('author_id', $request->author);
         }
         if ($request->star) {
-            $books->stars()->havingRaw("avg(rating_start) >= $request->star");
+            $books->havingRaw("avg(rating_start) >= $request->star");
         }
         if ($request->perPage) {
             $perPage = $request->perPage;
@@ -112,10 +112,10 @@ class BookRepository extends RepositoryAbstract
     public function getSortByFinalPriceAsc(Request $request)
     {
         $books = Book::getFinalPrice();
-        if ($request->category) {
+        if ($request->category && $request->category != 0) {
             $books->where('category_id', $request->category);
         }
-        if ($request->author) {
+        if ($request->author && $request->author != 0) {
             $books->where('author_id', $request->author);
         }
         if ($request->star) {
@@ -134,7 +134,7 @@ class BookRepository extends RepositoryAbstract
     public function getSortByFinalPriceDesc(Request $request)
     {
         $books = Book::getFinalPrice();
-        if ($request->category) {
+        if ($request->category && $request->category != 0) {
             $books->where('category_id', $request->category);
         }
         if ($request->author) {
