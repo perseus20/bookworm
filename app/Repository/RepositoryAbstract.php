@@ -4,7 +4,7 @@ namespace App\Repository;
 
 use App\Interfaces\RepositoryInterface;
 
-abstract class RepositoryAbstract implements RepositoryInterface
+abstract class RepositoryAbstract
 {
     public abstract function getAll();
     public abstract function getById($id);

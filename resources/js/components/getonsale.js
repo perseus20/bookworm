@@ -24,7 +24,6 @@ export default function GetOnSale() {
             })
             .catch((error) => console.log(error));
     }, []);
-    console.log(books);
     return (
         <>
             <Navbar>

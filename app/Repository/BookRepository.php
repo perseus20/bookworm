@@ -16,7 +16,7 @@ class BookRepository extends RepositoryAbstract
     }
     public function getById($bookId)
     {
-        return Book::findOrFail($bookId);
+        return Book::getFinalPrice()->findOrFail($bookId);
     }
     public function delete($bookId)
     {

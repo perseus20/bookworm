@@ -36,7 +36,7 @@ Route::get('/books/get-sort-by-popular', [BooksController::class, 'getSortByPopu
 Route::get('/books/get-sort-by-final-price-asc', [BooksController::class, 'getSortByFinalPriceAscApi']);
 Route::get('/books/get-sort-by-final-price-desc', [BooksController::class, 'getSortByFinalPriceDescApi']);
 Route::get('/books/get-sort-by-popular', [BooksController::class, 'getSortByPopularApi']);
-Route::get('/books/get-final-price/{book}', [BooksController::class, 'getFinalPriceApi']);
+Route::get('/books/show/{id}', [BooksController::class, 'show']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::group(['middleware' => ['auth:sanctum']], function () {

@@ -43,8 +43,7 @@ class BooksController extends Controller
     public function getSortByPopularApi(Request $request)
     {
         $books = $this->bookRepository->getSortByPopular($request);
-        // return BooksResource::collection($books);
-        return $books;
+        return BooksResource::collection($books);
     }
 
     public function getRecommendedApi()
@@ -71,9 +70,10 @@ class BooksController extends Controller
         return $books = BooksResource::collection($books);
     }
 
-    public function show(Book $book)
+    public function show($id)
     {
-        $book = $this->bookRepository->getById($book->id);
+        $book = $this->bookRepository->getById($id);
         return new BooksResource($book);
+        // return view('index')->with('book', $book);
     }
 }

@@ -28,3 +28,6 @@ Route::get('/about', function () {
 Route::get('/login', function () {
     return view('welcome');
 });
+Route::get('/product/{id}', function () {
+    return view('welcome');
+});
